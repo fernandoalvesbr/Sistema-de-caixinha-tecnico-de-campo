@@ -1,143 +1,140 @@
-````markdown
-# Sistema de Controle de Caixinha por Períodos
+# 💰 Sistema de Controle de Caixinha por Períodos
 
-Um sistema desenvolvido em **PHP** com armazenamento em **JSON**, criado para controlar a movimentação financeira de equipes técnicas de forma simples, rápida e sem necessidade de banco de dados.
+Um sistema desenvolvido em **PHP** com armazenamento em **JSON**, criado para controlar a movimentação financeira de equipes técnicas.
 
-Ideal para empresas que precisam controlar entregas de dinheiro, gastos, saldos por colaborador e prestação de contas entre períodos.
+Foi desenvolvido para funcionar em hospedagens compartilhadas, sem necessidade de banco de dados.
 
 ---
 
-# ✨ Principais Recursos
+## ✨ Recursos
 
-- 🔐 Sistema de login com autenticação
-- 👥 Controle de usuários e permissões
-- 📅 Controle financeiro por períodos
-- 💰 Registro de entregas de dinheiro
+- 🔐 Login com autenticação
+- 👥 Controle de usuários
+- 📅 Controle por períodos
+- 💰 Registro de entregas
 - 🧾 Registro de gastos
-- 🚇 Cadastro de meios de transporte
+- 🚇 Cadastro de transportes
 - ⚡ Cálculo automático de passagens
-- 👨‍🔧 Controle de técnicos
-- 📊 Gráficos e estatísticas
-- 📈 Comparativo entre períodos
+- 👨‍🔧 Cadastro de técnicos
+- 📊 Gráficos
+- 📈 Comparativos históricos
 - 📤 Exportação para Excel (CSV)
-- 🖨️ Impressão de prestação de contas
-- 💾 Backup completo em ZIP
-- 🌙 Tema Claro / Escuro
+- 🖨️ Impressão de relatórios
+- 💾 Backup em ZIP
+- 🌙 Tema claro/escuro
 - 📋 Auditoria de alterações
-- 📂 Armazenamento em arquivos JSON
-- ✅ Compatível com hospedagens compartilhadas
+- 📂 Armazenamento em JSON
 
 ---
 
-# 🚀 Tecnologias
+## 🚀 Tecnologias
 
 - PHP
 - Bootstrap 5
 - Chart.js
 - JSON
 
-O sistema **não utiliza MySQL nem SQLite**, tornando a instalação extremamente simples.
+**Não utiliza MySQL nem SQLite.**
 
 ---
 
-# ✅ Compatibilidade
-
-Compatível com:
+## ✅ Compatibilidade
 
 - PHP 5.x
 - PHP 7.x
 - PHP 8.x
 
-Pode ser utilizado em praticamente qualquer hospedagem compartilhada.
+Compatível com praticamente qualquer hospedagem compartilhada.
 
 ---
 
-# 📁 Estrutura
+## 📁 Estrutura
 
-```
+```text
 index.php
 caixinha_dados.json
 backup_historico_*.json
 ```
 
-Todos os dados ficam armazenados em arquivos JSON.
-
 ---
 
-# 🔑 Usuário padrão
+## 🔑 Primeiro acesso
 
-Na primeira execução o sistema cria automaticamente:
+O sistema cria automaticamente o usuário administrador.
 
 **Usuário**
 
-```
+```text
 admin
 ```
 
 **Senha**
 
-```
+```text
 admin
 ```
 
-⚠️ Recomenda-se alterar a senha logo após o primeiro acesso.
+> Recomenda-se alterar a senha após o primeiro acesso.
 
 ---
 
-# 👤 Níveis de acesso
+## 👥 Níveis de acesso
 
-## Administrador
+### 👑 Administrador
 
-Possui acesso completo ao sistema.
-
-Pode:
+Permissões:
 
 - Criar usuários
 - Excluir usuários
 - Criar períodos
 - Renomear períodos
 - Excluir períodos
-- Registrar gastos
+- Alterar caixa inicial
 - Registrar entregas
+- Registrar gastos
 - Editar lançamentos
 - Excluir lançamentos
-- Alterar o valor inicial do caixa
 - Cadastrar técnicos
 - Excluir técnicos
 - Ocultar técnicos dos gráficos
-- Cadastrar meios de transporte
-- Excluir meios de transporte
+- Cadastrar transportes
+- Excluir transportes
 - Exportar relatórios
-- Gerar backups completos
+- Gerar backup
 
 ---
 
-## Visualizador
+### 👁️ Visualizador
 
-Pode apenas:
+Permissões:
 
-- Consultar informações
+- Consultar dados
 - Filtrar registros
 - Visualizar gráficos
 - Exportar CSV
 - Imprimir relatórios
-- Alterar sua própria senha
+- Alterar a própria senha
 
-Não possui permissão para modificar os dados do sistema.
-
----
-
-# 📅 Controle por períodos
-
-Cada período possui seu próprio histórico financeiro.
-
-Ao criar um novo período, o sistema transporta automaticamente os saldos pendentes dos técnicos, evitando perda de informações entre fechamentos.
+Não pode modificar dados do sistema.
 
 ---
 
-# 💵 Registro de movimentações
+## 📅 Controle por períodos
 
-Cada lançamento registra:
+Cada período possui:
+
+- Caixa próprio
+- Histórico independente
+- Relatórios próprios
+- Saldo individual
+
+Ao criar um novo período o sistema transporta automaticamente os saldos pendentes dos técnicos.
+
+---
+
+## 💵 Registro de movimentações
+
+Cada lançamento armazena:
 
 - Data
 - Horário
@@ -148,92 +145,87 @@ Cada lançamento registra:
 - Usuário que criou
 - Usuário que editou
 
-Todo o histórico permanece disponível para auditoria.
+Todas as alterações ficam registradas para auditoria.
 
 ---
 
-# 🚇 Cálculo automático de transporte
+## 🚇 Transporte automático
 
-O sistema identifica automaticamente os transportes cadastrados dentro da observação.
+Caso a observação contenha transportes entre parênteses, o sistema calcula automaticamente o valor.
 
 Exemplo:
 
-```
+```text
 Empresa > Cliente (ônibus metrô) > Empresa
 ```
 
-O valor será calculado automaticamente utilizando os preços cadastrados pelo administrador.
-
-Caso o usuário informe um valor manual, ele também poderá ser utilizado.
+O cálculo utiliza os valores cadastrados pelo administrador.
 
 ---
 
-# 📊 Indicadores financeiros
+## 📊 Indicadores
 
-O painel apresenta automaticamente:
+O painel apresenta:
 
 - Caixa do período
 - Total gasto
 - Total entregue aos técnicos
-- Total atualmente com técnicos
-- Total para devolução
-- Saldo disponível no caixa
+- Total com os técnicos
+- Valor para devolução
+- Saldo do caixa
 
-Todos os valores são atualizados em tempo real.
+Todos os indicadores são atualizados automaticamente.
 
 ---
 
-# 📈 Relatórios
+## 📈 Relatórios
 
-O sistema oferece:
+O sistema permite:
 
 - Impressão da prestação de contas
 - Impressão com gráficos
 - Exportação para Excel (CSV)
 - Comparativo entre períodos
-- Evolução histórica dos gastos
+- Histórico financeiro
 
 ---
 
-# 💾 Backup
+## 💾 Backup
 
-O botão **Backup ZIP** gera automaticamente um arquivo contendo todos os arquivos JSON do sistema.
+O backup gera um arquivo ZIP contendo todos os arquivos JSON do sistema.
 
-Isso permite restaurar completamente o histórico sempre que necessário.
+A restauração pode ser feita substituindo os arquivos JSON pelos arquivos do backup.
 
 ---
 
-# 🔒 Segurança
+## 🔒 Segurança
 
 - Login obrigatório
-- Controle de permissões
 - Sessões PHP
+- Controle de permissões
 - Auditoria de usuários
 - Alteração individual de senha
-- Proteção contra acesso às funções administrativas
+- Proteção das funções administrativas
 
 ---
 
-# 🎯 Objetivo
+## 🎯 Objetivo
 
-Este projeto foi desenvolvido para facilitar o controle financeiro de equipes técnicas que recebem dinheiro para despesas operacionais, transporte e deslocamentos.
+Facilitar o controle financeiro de equipes técnicas responsáveis por despesas operacionais, transporte e deslocamentos.
 
-O foco é oferecer uma solução:
+O projeto foi desenvolvido para ser:
 
 - Simples
 - Leve
-- Rápida
+- Rápido
 - Portátil
 - Fácil de instalar
-- Compatível com hospedagens compartilhadas
-
-Sem depender de banco de dados.
 
 ---
 
-# 📄 Licença
+## 📄 Licença
 
-Este projeto é disponibilizado gratuitamente.
+Projeto disponibilizado gratuitamente.
 
 Caso utilize ou modifique este sistema, os créditos são sempre bem-vindos.
 
@@ -242,4 +234,3 @@ Caso utilize ou modifique este sistema, os créditos são sempre bem-vindos.
 ## 👨‍💻 Desenvolvedor
 
 **Fernando Ferreira Alves**
-````
