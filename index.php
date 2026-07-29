@@ -567,6 +567,7 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
         .item-gerenciavel { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--bs-border-color); align-items: center; }
         .cabecalho-impressao { display: none; }
         .assinatura-gestor-print { display: none; }
+        .total-passagens-print { display: none; }
         
         @media print { 
             @page { size: landscape; margin: 10mm; } 
@@ -618,6 +619,16 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
             .tabela-gastos-print td { vertical-align: middle !important; }
             tr.tipo-entrega { display: none !important; }
             .coluna-acoes { display: none !important; }
+            .total-passagens-print {
+                display: block !important;
+                font-size: 14pt !important;
+                margin-top: 18px !important;
+                text-align: left !important;
+                page-break-inside: avoid !important;
+            }
+            .total-passagens-print strong {
+                margin-left: 8px !important;
+            }
             
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             canvas { max-width: 100% !important; }
@@ -1004,6 +1015,10 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <div class="total-passagens-print">
+                    <span>Total gasto de passagem:</span>
+                    <strong>R$ <?php echo number_format($total_gasto_filtro, 2, ',', '.'); ?></strong>
+                </div>
             </div>
         </div>
     </div>
