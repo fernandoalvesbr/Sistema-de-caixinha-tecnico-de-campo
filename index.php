@@ -113,6 +113,7 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 
 // Verifica se o usuário atual é Admin
 $is_admin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
+$is_admin_principal = ($is_admin && isset($_SESSION['usuario_logado']) && strtolower($_SESSION['usuario_logado']) === 'admin');
 
 // Retira o acesso a links via URL (GET) caso o usuário seja apenas visualizador
 if (!$is_admin) {
@@ -149,6 +150,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg_usuarios = "<div class='alert alert-danger py-2 mt-2 small'>Nome inválido ou já existe!</div>";
         }
     }
+
+    // APENAS O ADMIN PRINCIPAL PODE REDEFINIR A SENHA DE OUTROS USUÁRIOS
+    if (isset($_POST['alterar_senha_usuario']) && $is_admin_principal) {
+        $usuario_alvo = isset($_POST['usuario_alvo']) ? $_POST['usuario_alvo'] : '';
+        $nova_senha_admin = isset($_POST['nova_senha_usuario']) ? $_POST['nova_senha_usuario'] : '';
+
+        if (isset($dados['usuarios'][$usuario_alvo]) && $nova_senha_admin !== '') {
+            $dados['usuarios'][$usuario_alvo]['senha'] = md5($nova_senha_admin);
+            file_put_contents($arquivo_dados, json_encode($dados), LOCK_EX);
+            $msg_usuarios = "<div class='alert alert-success py-2 mt-2 small'>Senha de " . htmlspecialchars(ucfirst($usuario_alvo)) . " alterada!</div>";
+        } else {
+            $msg_usuarios = "<div class='alert alert-danger py-2 mt-2 small'>Usuário inválido ou senha vazia!</div>";
+        }
+    }
 }
 
 if (isset($_GET['del_usuario']) && $is_admin) {
@@ -182,7 +197,7 @@ if (isset($_GET['edit_lancamento']) && $is_admin) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['alterar_senha']) && !isset($_POST['add_usuario']) && $is_admin) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['alterar_senha']) && !isset($_POST['add_usuario']) && !isset($_POST['alterar_senha_usuario']) && $is_admin) {
     
     // --- LÓGICA PARA RENOMEAR PERÍODO ---
     if (isset($_POST['renomear_periodo'])) {
@@ -1066,9 +1081,14 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                                 <?php foreach($dados['usuarios'] as $u_nome => $u_dados): ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 small bg-transparent">
                                         <span><strong><?php echo htmlspecialchars(ucfirst($u_nome)); ?></strong> <span class="text-muted">(<?php echo $u_dados['role'] === 'admin' ? 'Total' : 'Apenas Ver'; ?>)</span></span>
-                                        <?php if($u_nome !== 'admin' && $u_nome !== $_SESSION['usuario_logado']): ?>
-                                            <a href="?del_usuario=<?php echo urlencode($u_nome); ?>" class="text-danger fw-bold text-decoration-none" onclick="return confirmDelete(this);">X</a>
-                                        <?php endif; ?>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <?php if($is_admin_principal): ?>
+                                                <button type="button" class="btn btn-sm text-primary py-0 px-1 border-0" data-bs-toggle="modal" data-bs-target="#modalAlterarSenhaUsuario" data-usuario="<?php echo htmlspecialchars($u_nome); ?>" onclick="prepararAlteracaoSenhaUsuario(this)" title="Alterar senha">🔑</button>
+                                            <?php endif; ?>
+                                            <?php if($u_nome !== 'admin' && $u_nome !== $_SESSION['usuario_logado']): ?>
+                                                <a href="?del_usuario=<?php echo urlencode($u_nome); ?>" class="text-danger fw-bold text-decoration-none" onclick="return confirmDelete(this);">X</a>
+                                            <?php endif; ?>
+                                        </div>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
@@ -1124,6 +1144,32 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" name="renomear_periodo" class="btn btn-warning text-dark fw-bold" onclick="saveScrollPosition()">Salvar Alteração</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if($is_admin_principal): ?>
+    <div class="modal fade" id="modalAlterarSenhaUsuario" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">🔑 Alterar Senha do Usuário</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="usuario_alvo" id="usuario_alvo_senha">
+                        <label class="form-label fw-bold">Usuário</label>
+                        <input type="text" id="usuario_alvo_senha_visual" class="form-control mb-3" readonly>
+                        <label class="form-label fw-bold">Nova Senha</label>
+                        <input type="password" name="nova_senha_usuario" id="nova_senha_usuario" class="form-control" required autofocus>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" name="alterar_senha_usuario" class="btn btn-primary fw-bold" onclick="saveScrollPosition()">Salvar Nova Senha</button>
                     </div>
                 </form>
             </div>
@@ -1287,6 +1333,13 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
             document.getElementById('input_nome_transporte').value = nome;
             document.getElementById('input_valor_transporte').value = valor;
             document.getElementById('input_valor_transporte').focus();
+        }
+
+        function prepararAlteracaoSenhaUsuario(btn) {
+            const usuario = btn.getAttribute('data-usuario');
+            document.getElementById('usuario_alvo_senha').value = usuario;
+            document.getElementById('usuario_alvo_senha_visual').value = usuario.charAt(0).toUpperCase() + usuario.slice(1);
+            document.getElementById('nova_senha_usuario').value = '';
         }
 
         function confirmDelete(btn) {
