@@ -283,8 +283,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['alterar_senha']) && 
         $valor = (float)str_replace(',', '.', $_POST['valor']);
         $id_editar = $_POST['id_editar'];
         
-        if (strtolower(trim(remover_acentos($observacao))) === 'entrega' && $valor > 0) { $tipo = 'Entrega'; }
+        if (preg_match('/(?<![\p{L}\p{N}_])entrega(?![\p{L}\p{N}_])/iu', $observacao)) { $tipo = 'Entrega'; }
         
+        if (preg_match('/(?<![\p{L}\p{N}_])devolu[cç][aã]o(?![\p{L}\p{N}_])/iu', $observacao)) { $tipo = 'Devolução'; }
+
         if ($tipo === 'Gasto') {
             $valor_automatico = 0;
             $observacao_segura = mb_strtolower($observacao, 'UTF-8');
@@ -428,7 +430,7 @@ foreach ($todos_lancamentos_periodo as $l) {
     if (!empty($filtro_tipo) && $l['tipo'] !== $filtro_tipo) { continue; }
     
     $lancamentos_filtrados[] = $l;
-    if ($l['tipo'] === 'Entrega') { $total_entregue_filtro += $l['valor']; } else { $total_gasto_filtro += $l['valor']; }
+    if ($l['tipo'] === 'Entrega') { $total_entregue_filtro += $l['valor']; } elseif ($l['tipo'] === 'Gasto') { $total_gasto_filtro += $l['valor']; }
 }
 
 function comparar_data_asc($a, $b) { 
@@ -848,6 +850,7 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                     <option value="">-- Todos --</option>
                     <option value="Gasto" <?php echo $filtro_tipo === 'Gasto' ? 'selected' : ''; ?>>Gasto</option>
                     <option value="Entrega" <?php echo $filtro_tipo === 'Entrega' ? 'selected' : ''; ?>>Entrega</option>
+                    <option value="Devolução" <?php echo $filtro_tipo === 'Devolução' ? 'selected' : ''; ?>>Devolução</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
@@ -882,14 +885,15 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                     </div>
                     <div class="mb-3">
                         <label>Tipo</label>
-                        <select name="tipo" class="form-select">
+                        <select name="tipo" id="tipo_lancamento" class="form-select">
                             <option value="Gasto" <?php echo ($edit_item && $edit_item['tipo'] === 'Gasto') ? 'selected' : ''; ?>>Gasto (Técnico gastou)</option>
                             <option value="Entrega" <?php echo ($edit_item && $edit_item['tipo'] === 'Entrega') ? 'selected' : ''; ?>>Entrega (Caixa deu dinheiro)</option>
+                            <option value="Devolução" <?php echo ($edit_item && $edit_item['tipo'] === 'Devolução') ? 'selected' : ''; ?>>Devolução (Técnico devolveu ao caixa)</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label>Observação / Rota</label>
-                        <textarea name="observacao" class="form-control" placeholder="Ex: Mls > Viva lapa (onibus) > Mls (metro)" required><?php echo $edit_item ? htmlspecialchars($edit_item['observacao']) : ''; ?></textarea>
+                        <textarea id="observacao_lancamento" name="observacao" class="form-control" placeholder="Ex: Mls > Viva lapa (onibus) > Mls (metro)" required><?php echo $edit_item ? htmlspecialchars($edit_item['observacao']) : ''; ?></textarea>
                     </div>
                     <div class="mb-3">
                         <label>Valor Manual (R$)</label>
@@ -1009,11 +1013,11 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                             <td class="align-middle"><?php echo date('d/m/Y', strtotime($l['data'])); ?></td>
                             <td class="align-middle"><strong><?php echo htmlspecialchars($l['tecnico']); ?></strong></td>
                             <td class="align-middle">
-                                <span class="badge <?php echo $l['tipo'] === 'Entrega' ? 'bg-info text-dark' : 'bg-warning text-dark'; ?>">
+                                <span class="badge <?php echo $l['tipo'] === 'Entrega' ? 'bg-info text-dark' : ($l['tipo'] === 'Devolução' ? 'bg-success' : 'bg-warning text-dark'); ?>">
                                     <?php echo htmlspecialchars($l['tipo']); ?>
                                 </span>
                             </td>
-                            <td class="align-middle fw-bold <?php echo $l['tipo'] === 'Entrega' ? 'text-primary' : 'text-danger'; ?>">
+                            <td class="align-middle fw-bold <?php echo $l['tipo'] === 'Entrega' ? 'text-primary' : ($l['tipo'] === 'Devolução' ? 'text-success' : 'text-danger'); ?>">
                                 R$ <?php echo number_format($l['valor'], 2, ',', '.'); ?>
                             </td>
                             <td class="align-middle small text-muted"><?php echo htmlspecialchars($l['observacao']); ?></td>
@@ -1178,6 +1182,21 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
     <?php endif; ?>
 
     <script>
+        const observacaoLancamento = document.getElementById('observacao_lancamento');
+        const tipoLancamento = document.getElementById('tipo_lancamento');
+        if (observacaoLancamento && tipoLancamento) {
+            const atualizarTipoPelaObservacao = () => {
+                if (/(^|[^\p{L}\p{N}_])devolu[cç][aã]o(?=$|[^\p{L}\p{N}_])/iu.test(observacaoLancamento.value)) {
+                    tipoLancamento.value = 'Devolução';
+                } else if (/(^|[^\p{L}\p{N}_])entrega(?=$|[^\p{L}\p{N}_])/iu.test(observacaoLancamento.value)) {
+                    tipoLancamento.value = 'Entrega';
+                }
+            };
+            observacaoLancamento.addEventListener('input', atualizarTipoPelaObservacao);
+            tipoLancamento.addEventListener('change', atualizarTipoPelaObservacao);
+            observacaoLancamento.form.addEventListener('submit', atualizarTipoPelaObservacao);
+        }
+
         let chartTec, chartDias, chartCompGeral, chartCompTec;
         let temaOriginalAntesImpressao = null;
 

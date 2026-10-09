@@ -13,6 +13,7 @@ Foi desenvolvido para funcionar em hospedagens compartilhadas, sem necessidade d
 - 📅 Controle por períodos
 - 💰 Registro de entregas
 - 🧾 Registro de gastos
+- ↩️ Registro de devoluções dos técnicos ao caixa
 - 🚇 Cadastro de transportes
 - ⚡ Cálculo automático de passagens
 - 👨‍🔧 Cadastro de técnicos
@@ -146,6 +147,8 @@ Cada lançamento armazena:
 - Usuário que editou
 
 Todas as alterações ficam registradas para auditoria.
+
+Selecione **Devolução (Técnico devolveu ao caixa)** para registrar dinheiro devolvido. O valor reduz o saldo do técnico e retorna ao caixa, sem ser contabilizado como gasto. Ao escrever **Devolução** ou **Devolucao** na observação, inclusive dentro de uma frase e independentemente de maiúsculas/minúsculas, o tipo é selecionado automaticamente. Informe o valor devolvido no campo Valor Manual. A palavra **Entrega** na observação também seleciona automaticamente o tipo **Entrega**, inclusive em frases e sem diferenciar maiúsculas/minúsculas. Se as duas palavras estiverem presentes, **Devolução** tem prioridade.
 
 ---
 
