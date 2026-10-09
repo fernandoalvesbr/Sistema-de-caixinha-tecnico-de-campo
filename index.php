@@ -472,6 +472,7 @@ if (isset($_GET['exportar_csv'])) {
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
     fputcsv($output, array('Horario', 'Data', 'Tecnico', 'Tipo', 'Valor (R$)', 'Observacao', 'Criado Por', 'Editado Por'), ';');
     foreach ($lancamentos_filtrados as $l) {
+        if ($l['tipo'] === 'Devolução') { continue; }
         $horario_csv = isset($l['horario']) ? $l['horario'] : '--:--';
         $criado_csv = isset($l['criado_por']) ? $l['criado_por'] : 'Sistema/Antigo';
         $editado_csv = isset($l['editado_por']) ? $l['editado_por'] : '';
@@ -634,7 +635,7 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
             .coluna-assinatura { display: table-cell !important; width: 25% !important; border-left: 2px solid #000 !important; }
             .tabela-gastos-print tbody tr { height: 50px !important; }
             .tabela-gastos-print td { vertical-align: middle !important; }
-            tr.tipo-entrega { display: none !important; }
+            tr.tipo-entrega, tr.tipo-devolucao { display: none !important; }
             .coluna-acoes { display: none !important; }
             .total-passagens-print {
                 display: block !important;
@@ -1003,7 +1004,7 @@ if (!empty($ordem_horario)) $icone_ordem_horario = ($ordem_horario === 'desc') ?
                             }
                         ?>
                         
-                        <tr class="<?php echo $l['tipo'] === 'Entrega' ? 'tipo-entrega' : ''; ?>" title="<?php echo $msg_auditoria; ?>">
+                        <tr class="<?php echo $l['tipo'] === 'Entrega' ? 'tipo-entrega' : ($l['tipo'] === 'Devolução' ? 'tipo-devolucao' : ''); ?>" title="<?php echo $msg_auditoria; ?>">
                             <td class="align-middle no-print text-muted fw-bold" style="font-size: 0.85em;">
                                 <?php if(isset($l['data_insercao'])): ?>
                                     <span class="fw-normal" style="font-size: 0.9em;"><?php echo htmlspecialchars($l['data_insercao']); ?></span><br>

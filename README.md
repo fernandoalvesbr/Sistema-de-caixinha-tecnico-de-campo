@@ -148,7 +148,7 @@ Cada lançamento armazena:
 
 Todas as alterações ficam registradas para auditoria.
 
-Selecione **Devolução (Técnico devolveu ao caixa)** para registrar dinheiro devolvido. O valor reduz o saldo do técnico e retorna ao caixa, sem ser contabilizado como gasto. Ao escrever **Devolução** ou **Devolucao** na observação, inclusive dentro de uma frase e independentemente de maiúsculas/minúsculas, o tipo é selecionado automaticamente. Informe o valor devolvido no campo Valor Manual. A palavra **Entrega** na observação também seleciona automaticamente o tipo **Entrega**, inclusive em frases e sem diferenciar maiúsculas/minúsculas. Se as duas palavras estiverem presentes, **Devolução** tem prioridade.
+Selecione **Devolução (Técnico devolveu ao caixa)** para registrar dinheiro devolvido. O valor reduz o saldo do técnico e retorna ao caixa, sem ser contabilizado como gasto. Ao escrever **Devolução** ou **Devolucao** na observação, inclusive dentro de uma frase e independentemente de maiúsculas/minúsculas, o tipo é selecionado automaticamente. Informe o valor devolvido no campo Valor Manual. A palavra **Entrega** na observação também seleciona automaticamente o tipo **Entrega**, inclusive em frases e sem diferenciar maiúsculas/minúsculas. Se as duas palavras estiverem presentes, **Devolução** tem prioridade. As devoluções ficam no histórico para consulta e edição, mas não aparecem nos relatórios impressos nem na exportação CSV e não compõem os gastos dos gráficos.
 
 ---
 
